@@ -10,6 +10,7 @@ import uvicorn
 from jose import jwt
 import json
 from bson.json_util import dumps
+import random, string
 
 pwd_context=CryptContext(schemes=["bcrypt"], deprecated="auto")
 def get_password_hash(password):
@@ -33,10 +34,13 @@ token_dict={}
 
 @app.put('/signup/')
 def signup(user: User):
-     item={"_id":user.username, "name":user.name, "phone":user.phone, "password":get_password_hash(user.password), "Description":user.Description}
+     item={"_id":user.username, "name":user.name, "phone":user.phone, "password":get_password_hash(user.password), "Description":user.Description, "Key":generaterandom()}
      data.userdata(item)
      
      return user
+def generaterandom():
+    x = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(6))
+    return x
 
 @app.post('/login')
 def login (form_data: OAuth2PasswordRequestForm = Depends()):
