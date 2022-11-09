@@ -25,7 +25,34 @@ class User(BaseModel):
     name:str
     phone:int
     password:str
-    Description: Optional[str]=None
+    description: Optional[str]=None
+        
+    @property
+    def save(self):
+        user_exist_check = self.get_by_user_name(self.username)
+        if isinstance(user_exist_check, str):
+            collections.insert_one(self.dict())
+        else:
+            raise Exception(f'Username already exsits {user_exist_check.username}')
+    
+    @classmethod
+    def get_by_user_name(cls, username:str):
+        results = collections.find({"_id":username})
+        if results:
+            return cls(**[doc for doc in results][0])
+        else:
+            return "wrong username/password"
+    
+    def updatephone(username:str, phone:int):
+        collections.update_one({"_id":username}, {"$set":{"phone":phone}})
+
+    def nameupdate(username:str, newname:str):
+        collections.update_one({"_id":username}, {"$set":{"name":newname}})
+
+    def getUserDetails(username:str):
+        user=collections.find({"_id":username})
+        return user
+    
 
 SECRET_KEY='26e06c153bb674f81c83b1919977a7989d594be75debb8f24afdc1b7930a569e'
 ALGORITHM='HS256'
@@ -34,10 +61,11 @@ token_dict={}
 
 @app.put('/signup/')
 def signup(user: User):
-     item={"_id":user.username, "name":user.name, "phone":user.phone, "password":get_password_hash(user.password), "Description":user.Description, "Key":generaterandom()}
-     data.userdata(item)
-     
+     #item={"_id":user.username, "name":user.name, "phone":user.phone, "password":get_password_hash(user.password), "Description":user.Description, "Key":generaterandom()}
+     #data.userdata(item)
+     user.save()
      return user
+
 def generaterandom():
     x = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(6))
     return x
