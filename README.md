@@ -46,6 +46,11 @@ Start the server
   uvicorn main:app --reload
 ```
 
+### Use FastAPI docs to check end points
+
+```
+localhost:8000/docs
+```
 
 ## API Reference
 
